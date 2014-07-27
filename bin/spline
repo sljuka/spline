@@ -1,0 +1,4 @@
+#!/usr/bin/env ruby
+
+require_relative '../lib/spline'
+puts Spliner.hi(ARGV[0])
