@@ -4,3 +4,4 @@ require_relative '../lib/spline'
 puts Spliner.hi(ARGV[0])
 puts __FILE__
 puts File.expand_path("../../", __FILE__)
+puts Dir.pwd
