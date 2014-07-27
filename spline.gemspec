@@ -6,7 +6,7 @@ require 'spline/version'
 Gem::Specification.new do |spec|
   spec.name          = "spline"
   spec.version       = Spline::VERSION
-  s.executables      << 'hola'
+  spec.executables   << 'spline'
   spec.authors       = ["Mrav Atomski"]
   spec.email         = ["uraniumsheep@gmail.com"]
   spec.summary       = %q{This is a hello world gem}
