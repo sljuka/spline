@@ -1,7 +1,10 @@
 #!/usr/bin/env ruby
 
+require 'fileutils'
+
 require_relative '../lib/spline'
 puts Spliner.hi(ARGV[0])
 puts __FILE__
 puts File.expand_path("../../", __FILE__)
 puts Dir.pwd
+FileUtils.mkdir_p ['process_definition/processes', 'process_definition/actions']
