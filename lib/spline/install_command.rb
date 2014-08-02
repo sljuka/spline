@@ -18,9 +18,9 @@ module Spline
         return
       end
 
-      template('templates/default_action1.tt', "process_definition/actions/example/my_first_action.rb")
-      template('templates/default_action2.tt', "process_definition/actions/example/my_second_action.rb")
-      template('templates/default_process.tt', "process_definition/processes/my_process.rb")
+      template('templates/my_first_action.tt', "process_definition/actions/example/my_first_action.rb")
+      template('templates/my_second_action.tt', "process_definition/actions/example/my_second_action.rb")
+      template('templates/my_process.tt', "process_definition/processes/my_process.rb")
     end
 
   end
