@@ -20,9 +20,11 @@ Or install it yourself as:
 
 Spline is a CLI. When installed there are some commands
 
-spline install (generates the necessary folders and sample files)
-spline process NAME (generates a process stub)
-spline paction NAMESPACE NAME (generates an action stub)
+    spline install (generates the necessary folders and sample files)
+
+    spline process NAME (generates a process stub)
+
+    spline paction NAMESPACE NAME (generates an action stub)
 
 ## Contributing
 
