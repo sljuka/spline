@@ -1,0 +1,6 @@
+process "<%= name %> description" { |p|
+
+  p.name "<%= name %>"
+  p.attributes []
+
+}

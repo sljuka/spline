@@ -1,0 +1,7 @@
+action "<%= name %> description" { |a|
+
+  a.name "<%= name %>"
+  a.namespace "<%= namespace %>"
+  a.attributes []
+
+}

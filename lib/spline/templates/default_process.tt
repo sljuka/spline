@@ -1,0 +1,21 @@
+
+#process method with description as first argument, block as second arg
+
+process "this is an example process" { |p|
+
+  p.name "my process"
+  p.attributes ["repo", "example_attribute"]
+
+  p.start_action "example:my_first_action"
+  
+  p.action_transition "example:my_first_action" { |a|
+    a.success "example:my_second_action"
+    a.failure process_failure
+  }
+
+  p.action_transition "example:my_second_action" { |a|
+    a.success process_success
+    a.failure process_failure
+  }
+
+}
