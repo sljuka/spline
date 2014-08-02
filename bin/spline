@@ -2,11 +2,6 @@
 
 require 'rubygems'
  
-begin
-  require_relative '../lib/spline'
-rescue LoadError => e
-warn 'Could not load "../lib/spline"'
-  exit -1
-end
+require 'spline'
  
 Spline::SplineCli.start
