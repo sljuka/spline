@@ -1,6 +1,6 @@
 # Spline
 
-TODO: Write a gem description
+Sample gem project using thor!
 
 ## Installation
 
