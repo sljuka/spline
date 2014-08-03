@@ -6,14 +6,14 @@ process "this is an example process" { |p|
   p.name "my process"
   p.attributes ["repo", "example_attribute"]
 
-  p.start_action "example:my_first_action"
+  p.start_step "example:my_first_step"
   
-  p.action_transition "example:my_first_action" { |a|
-    a.success "example:my_second_action"
+  p.step_transition "example:my_first_step" { |a|
+    a.success "example:my_second_step"
     a.failure process_failure
   }
 
-  p.action_transition "example:my_second_action" { |a|
+  p.step_transition "example:my_second_step" { |a|
     a.success process_success
     a.failure process_failure
   }

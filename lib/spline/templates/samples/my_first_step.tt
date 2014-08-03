@@ -1,0 +1,11 @@
+
+#step method with description as first argument, block as second arg
+
+step "this is an example step" { |s|
+
+  s.name "my first step"
+  s.namespace "example"
+  s.attributes ["repo", "example_attribute"]
+  s.finishes ["success", "failure"]
+
+}

@@ -1,0 +1,7 @@
+step "<%= name %> description" { |s|
+
+  s.name "<%= name %>"
+  s.namespace "<%= namespace %>"
+  s.attributes []
+
+}
