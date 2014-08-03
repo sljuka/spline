@@ -16,7 +16,7 @@ module Spline
     end
 
     def self.usage
-      "spline step NAMESPACE NAME"
+      "step NAMESPACE NAME"
     end
 
   end

@@ -22,9 +22,5 @@ module Spline
       "generates necessary folders and a couple of sample files"
     end
 
-    def self.usage
-      "spline setup"
-    end
-
   end
 end

@@ -15,7 +15,7 @@ module Spline
     end
 
     def self.usage
-      "spline process NAME"
+      "process NAME"
     end
 
   end
