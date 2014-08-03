@@ -2,7 +2,7 @@ require_relative "../command"
 
 module Spline
 
-  class ActionCommand < Command
+  class StepCommand < Command
 
     argument :namespace, :desc => "Namespace of the action"
     argument :name, :desc => "Name of the action"
