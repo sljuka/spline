@@ -1,9 +1,7 @@
 module Spline
 
   require 'thor'
-  require_relative 'process_command'
-  require_relative 'install_command'
-  require_relative 'action_command'
+  Dir["#{File.dirname(__FILE__)}/commands/concrete_commands/*.rb"].each { |file| require_relative file }
 
   class SplineCli < Thor
 

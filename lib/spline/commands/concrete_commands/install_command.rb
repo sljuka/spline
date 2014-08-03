@@ -1,15 +1,10 @@
-require 'thor/group'
+require_relative "../cli_command"
 
 module Spline
 
-  class InstallCommand < Thor::Group
-    include Thor::Actions
+  class InstallCommand < CliCommand
 
-    def self.source_root
-      File.dirname(__FILE__)
-    end
-
-    def install_process
+    def install
       processes_dir_exists = File.directory?("#{Dir.pwd}/process_definition/processes")
       actions_dir_exists = File.directory?("#{Dir.pwd}/process_definition/actions")
 
