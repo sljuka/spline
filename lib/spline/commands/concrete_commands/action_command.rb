@@ -1,8 +1,8 @@
-require_relative "../cli_command"
+require_relative "../command"
 
 module Spline
 
-  class ActionCommand < CliCommand
+  class ActionCommand < Command
 
     argument :namespace, :desc => "Namespace of the action"
     argument :name, :desc => "Name of the action"

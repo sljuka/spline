@@ -1,8 +1,8 @@
-require_relative "../cli_command"
+require_relative "../command"
 
 module Spline
 
-  class ProcessCommand < CliCommand
+  class ProcessCommand < Command
     
     argument :name, :desc => "The name of the process"
 

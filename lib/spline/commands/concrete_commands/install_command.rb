@@ -1,7 +1,7 @@
-require_relative "../cli_command"
+require_relative "../command"
 
 module Spline   
-  class InstallCommand < CliCommand
+  class InstallCommand < Command
 
     def install
       processes_dir_exists = File.directory?("#{Dir.pwd}/process_definition/processes")
