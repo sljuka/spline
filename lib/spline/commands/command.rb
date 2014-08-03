@@ -19,7 +19,7 @@ module Spline
       command_name
     end
 
-    def self.usage_tip
+    def self.usage
       command_name
     end
 

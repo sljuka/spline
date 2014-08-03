@@ -11,6 +11,14 @@ module Spline
       template('templates/definitions/step.tt', "process_definition/steps/#{namespace}/#{name}.rb")
     end
 
+    def self.description
+      "generates a step stub"
+    end
+
+    def self.usage
+      "spline step NAMESPACE NAME"
+    end
+
   end
 
 end

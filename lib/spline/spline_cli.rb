@@ -11,7 +11,7 @@ module Spline
     commands = Spline.constants.select { |c| c.match(/\w+Command/) && Spline.const_get(c).is_a?(Class) }
     commands.each do |command|
       commandClass = Spline.const_get(command)
-      register(commandClass, commandClass.alias, commandClass.usage_tip, commandClass.description)
+      register(commandClass, commandClass.alias, commandClass.usage, commandClass.description)
     end
   end
 end

@@ -10,6 +10,14 @@ module Spline
       template('templates/definitions/process.tt', "process_definition/processes/#{name}.rb")
     end
 
+    def self.description
+      "generates a process stub"
+    end
+
+    def self.usage
+      "spline process NAME"
+    end
+
   end
 
 end
