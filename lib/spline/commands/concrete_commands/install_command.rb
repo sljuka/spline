@@ -1,7 +1,6 @@
 require_relative "../cli_command"
 
-module Spline
-
+module Spline   
   class InstallCommand < CliCommand
 
     def install
@@ -17,7 +16,5 @@ module Spline
       template('templates/my_second_action.tt', "process_definition/actions/example/my_second_action.rb")
       template('templates/my_process.tt', "process_definition/processes/my_process.rb")
     end
-
   end
-
 end
