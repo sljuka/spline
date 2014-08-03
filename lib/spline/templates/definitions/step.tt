@@ -1,3 +1,4 @@
+
 step "<%= name %> description" { |s|
 
   s.name "<%= name %>"
