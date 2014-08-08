@@ -16,6 +16,7 @@ Kao primer proces odabran je proces overe semestra u studenstkoj sluzbi (novi na
 ![tok procesa](overa_semestra_proces.png)
 
 pravougaonik -> proces
+
 elipsa -> akcija (korak) procesa
 
 ### Tok procesa
@@ -45,13 +46,15 @@ biznis logika akcije proverava stanje u bazi da vidi da li je potvrdjena overa. 
 
     PROCESS:
       state: :waiting
-      current_action: 'cekaj_potvrdu'
+      current_action: 'cekaj_potvrdu
 
 Ovde bi iskoristio mogucnosti nekih alata koji mogu da se aktiviraju posle odredjenog vremena (cron taskovi npr). Rake ima takve mogucnosti mada nisam detaljno zalazio u nacin implementacije.
 
-Proces i/ili akcija bi trebala da ima vreme ponovnog poziva (recall time). Alat bi trebalo da prodje kroz sve instance procesa u bazi koji su u stanju cekanja i pokrene njihove current_action-e ako je recall time istekao (ili se aktivira u odredjenom vremenu dnevno ili godisnje).
+Ovaj deo je ne standardni sto se tice web-a, odnosno ne aktivira se zahtevima korisnika vec ga aktivira neki od sistemskih procesa unutar kog se nalazi aplikacija.
 
-Ovde bi trebalo obratiti paznju na idempotentnost. Akcije koje se ponovno aktiviraju na odredjeno vreme ne bi trebale da menjaju stanje aplikacije, vec samo vrse provere.
+Proces i/ili akcija bi trebala da ima vreme ponovnog poziva (recall time). Alat koji vremenski proverava ispunjenje uslova nastavka procesa bi trebao da prodje kroz sve instance procesa u bazi koji su u stanju cekanja i pokrene njihove current_action-e ako je recall time istekao (ili se aktivira u odredjenom vremenu dnevno ili po nekom cron-u).
+
+Ovde bi trebalo obratiti paznju na idempotentnost. Akcije koje se cesto automatski ponavljaju na odredjeno vreme ne bi trebale mnogo da menjaju stanje aplikacije, vec uglavnom da vrse provere.
 
 Po potvrdi od strane studenta i po ponovnom okidanju akcije, prelazi se na narednu akciju.
 
@@ -67,7 +70,7 @@ Po izvrsenju poslednje akcije proces prelazi u stanje zavrsen.
       state: :finished
       current_action: nil
 
-### izgled jezika
+### Izgled jezika
 
 fajlovi vezani za definiciju bi trebali biti u odredjenim folderima (izgenerisanim od strane gem-a)
 
@@ -85,7 +88,7 @@ atributes ["student_id"]
 start_action ["semestar::overa_semestra"]
 recall_time 20, "mins"
 
-action_transition "semstar:overa_semestra", {
+action_transition "semstar:obavesti_studenta", {
   success: "semestar:cekaj_potvrdu",
   failure: "process:error"
 }
@@ -109,137 +112,40 @@ action_transition "obavesti_studente_o_overi",
 
 ```
 
-akcije
+akcije bi se trebale nalaziti u delu projekta za akcije unutar foldera njihovog namespace-a.
 
-Struktura usecase-a:
-
-- Naslov
-- Deskriptivni opis
-- Primarne uloge
-- Moguci zavrseci (npr success, failure, validation error, no database...)
-- Basic flow (opciono malo specificniji opis)
-- Maybe more
-
-Struktura generisanog ruby koda (jos nesiguran oko naziva):
-
-- Runners, (genericke klase koriscene za pokretanje poslovnih metoda)
-- Bussiness klase, (Objekti koji se omotavaju oko objekata izvucenih iz baze i dodaju im metode koje implementiraju poslovnu logiku, tu je mesto gde se mogu koristiti razni patterni kao strategija...)
-- Repozitorijumi, objekti koji se koriste za izvlacenje i modifikaciju podataka. Oni bi sluzili za apstrahovanje baze (konkretni repozitorijumi nisu deo poslovne logike, ali njihov interfejs jeste, to je interfejs adaptera za rukovanje podacima. Ovde bi po defaultu za ruby mogao da ponudim automatsko generisanje repozitorijuma za ActiveRecords posto je to poznati ruby ORM. Kod koji bi implementirao interfejs mogao bi lako da se izgenerise.
-- Okvir za testiranje poslovnih metoda (unit, integracioni testovi...) u minitestu ili rspec frameworku.
-
-## Ciljevi
-
-- Teziti hexagonalnoj arhitekturi
-- Olaksavanje pisanje i izvrsavanje testova
-- Odvajanje biznis logike od logike aplikacije i frameworka
-- Apstrahovanje baze podataka (ili nekog drugog nacina skladistenja) iza api-ja.
-
-### Heksagonalna arhitektura
-
-   Projektuje se centralni deo aplikacije (heksagon) u kome se nalazi sva biznis logika aplikacije, i adapteri (portovi) koji se kace na centralni deo aplikaciju (stranice heksagona) i koriste je ili aplikacija njih koristi.
-
-   Centralni deo je pisan bez zavisnosti od frameworka (PORO ili POJO klase), jedino od cega bi zavisio su interfejsi adaptera.
-
-   U kontekstu web aplikacije jedan od adaptera bi bio adapter za web framework. Ovaj adapter bi omogucavao aplikaciji da komunicira sa web frejmworkom odnosno da korisnicima nudi remote pristup aplikaciji preko http ili nekog slicnog protokola. Ovaj api bi nudio nacin za redirectovanje sa jedne stranice na drugu, template za generisanje i renderovanje HTML-a i slanja podataka template engine-u i ostala svojstva koja nisu vezana za poslovnu logiku aplikacije.
-
-   Drugi vazan adapter bi bio adapter za rukovanje podacima. Najcesce bi se na ovaj prikljucivala baza podataka, medjutim mogao bi da bude bilo koji mehanizam za skladistenje i pregled podaka koji implementira interfejs adaptera.
-
-   Pored ova 2 tu bi mogli da se dodaju drugi adapteri (adapter za logovanje, autorizaciju...).
-
-### Testiranje
-
-   Jedan od vaznih ciljeva je da se formira nacin projektovanja gde se lako pisu i brzo izvrsavaju testovi koji testiraju konkretne delove sistema za koje su napisani.
-
-   Ubrzanje testiranja zelimo ali ne uz alate za testiranje kao sto su spork ili zeus (automatsko pokretanje testova, i zadrzavanje okruzenja u pozadini), vec na brzini dobiti odvajanjem testova od baze (koriscenje mock baze i loadovanje samo onog dela environmenta koji nam je potreban za pokretanje odredjenog testa).
-
-   Ubrzanjem testova moze da se pocne sa iterativnim testiranjem, odnosno pustanje testova posle svake odradjene celine. Kod proveravamo ne tako sto pokrecemo produkciono okruzenje i posmatramo ponasanje, vec proverom da li testovi prolaze, posto ovo vreme ne bi trebalo da prelazi vise od nekoliko sekundi.
-
-   Ovakav nacin rada zahteva i pisanje integracionih testova koji bi testirali sistem u celosti ukljucujuci i bazu ali bi ti testovi bili malobrojni i relativno se retko pokretali.
-
-### Odvajanje biznis logike od logike aplikacije i frameworka
-
-   Problem kod Rails-a je da okruzenje poseduje auto loading koji omogucava da se iz svakog dela koda moze prici skoro svemu. Ovo mnogo olaksava rad na pocetku projekta, ali kasnije se sve vise zapetljava i na kraju se zavrsava sa kodom koji se tesko testira i odrzava.
-
-   Obicno kada se pisu tzv debeli kontroleri i logika iz activeRecords-a (ORM) mesa sa logikom frameworka (save i update, sa render, redirect, flash...) u kontrolerskim metodama, stvara se kod koji je tesko ponovno iskoristiv.
-
-   Ako se koristi dobra rails praksa mogu se izbeci mnoge ove stvari i zavrsiti sa dobrim karakteristikama koda (DRY reusable readable), ali i dalje ostaje problem da testovi dugo traju, i da poslovna logika u rails app ostaje u njoj, osim ako se ne udalji od default rails nacina razvoja.
-
-   Biznis logika po heksagonalnoj arhitekturi ne bi trebala da zavisi od frameworka.
-
-   Pod biznis logikom ili poslovnom logikom konkretno smatram posao kojim aplikacija imitira (modeluje) spolni svet. Npr pekarska aplikacija merenje kolicine brasna doziranje za odredjena peciva. Aplikacija za parking vodi evidenciju o broju zauzetih i slobodnih mesta, razmatra ko nije propisno parkiran... Ovo je deo koji bi trebao da bude lako ponovno iskoristiv (idealno u zasebnoj biblioteci gem-u jar-u...).
-
-   Aplikativna logika, deo aplikacije koji je vise specifican za aplikaciju u kojoj se nalazi i najcesce zavisi od frameworka. Ovo je deo koda koji koristi poslovnu logiku. Primer ovog koda bi bio: po uspesnom izvrsavanju <nesto iz biznis logike> posalji mail <svim zainteresovanima> i izrenderuj odgovarajucu stranicu i obavesti <jos neke notifikacijom> da je uspesno izvrseno. Ovaj deo bi bio razlicito projektovan u zavsnosti od klijenta koji koristi biznis logiku ( da li je stateless, console app, html or rich thick client, android...). Bice primer dalje u kodu kako se ovo moze odraditi.
-
-### Apstrahovanje baze
-
-   Sql nudi mnoge mogucnosti sa rukovanjem podacima, medjutim unutar poslovne logike najcesce je potreban samo mali podskup ovih operacija, koji moze da se odvoji u mehanizam koji bi imao cilj da rukuje podacima.
-
-   Ovo omogucava da ako promenimo bazu ili predjemo sa baze na fajl sistem skladistenje, ne moramo da menjamo poslovni deo niti aplikativni deo, vec samo napravimo novi prikljucak koji implementira adapter i ukljucimo ga (u aplikativnom delu).
-
-   Za testiranje bi bio jos jedan prikljucak koji bi se koristio kao baza za testiranje (mock baza). Ona bi korisitla fajl sistem sto bi omogucavalao da se brzo loaduje, reloaduje i skladisti nove stvari. Ovaj priklucak bi imao funkciju da simulira bazu tokom testiranja.
-
-## ROR Primer
-
-   Domen primera je rpg igrica, gde korisnik (User) moze da pravi karaktere (Character) koji mogu imati raznorazne klase (character.type mogu biti Barbarian, Necromancer, Knight...)
-
-standardna create zahtev u railsu:
+Primer akcije
 
 ```ruby
 
-class CharactersController < ApplicationController
+# obavesti_studenta_action.rb
 
-...
+action "Akcija priprema servis za potvrdu studenta"
+namespace "semestar"
+name "obavesti_studenta"
+atributes ["student_id"]
 
-  def create
-    @character = Character.new(params[:character]) # biz params je fw
-    @character.user = current_user # biz
-    if character.save # biz
-      flash[:notice] = 'new #{character.type} has been born!' # fw poruka biz
-      redirect_to action: :index # fw
-    else
-      flash[:notice] = 'fill those fields properly!' #fw
-      render.now action: :new # fw
-    end
+business do
+
+  # biznis logika moze odmah da se doda,
+  # a moze i u krajnje generisanom fajlu
+  # gde se generisani kod spaja sa rucnim
+
+  # reference na objekte kao repo bi se ubacile u toku generisanja
+
+  if repo.update_student(student_id, potvrdio_overu: false)
+    success("uspesno!")
+  else
+    failure("ne uspesna akcija")
   end
 
 end
 
 ```
 
-   Problem mesanja biznis logike (#biz) i framework-a (#fw)
+Tokom izvrsavanja procesa u bazi (odvojenoj od baze aplikacije) bi imali sve meta podatke o procesu.
 
-   Malo heksagonalnije
-
-```ruby
-
-class CharactersController < ApplicationController
-
-...
-
-  def create
-    run(CreateRunner, character_params) do |on| # poziv biznis logike
-      on.success { |character, msg| # na uspesan zavrsetak
-        @character = character # aplikativni kod...
-        flash[:notice] = msg
-        redirect_to action: :index
-      }
-      on.failure { |msg|  # na neuspeh novi app kod...
-        flash[:notice] = msg
-        render.now action: :index
-      }
-    end
-  end
-end
-
-```
-
-## Reference:
-
-https://www.youtube.com/watch?v=tg5RFeSfBM4
-
-http://alistair.cockburn.us/Hexagonal+architecture
-
-http://vimeo.com/44807822
+Web aplikacija koja bi startovala proces, mogla bi se podesiti da js ajax-om salje get zahteve u pozadini svakih nekoliko sekundi i tako proverava stanje procesa dok se on izvrsava i tekuce stanje prikazuje klijentu. 
 
 </xmp>
 
